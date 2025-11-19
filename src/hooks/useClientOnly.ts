@@ -4,7 +4,6 @@ export const useClientOnly = () => {
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-
     const timer = setTimeout(() => {
       setIsClient(true);
     }, 0);

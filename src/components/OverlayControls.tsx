@@ -11,6 +11,7 @@ interface OverlayControlsProps {
   isSpeechSupported: boolean | null;
   isClient: boolean;
   isModelReady?: boolean;
+  targetLanguage: string;
 }
 
 export function OverlayControls({
@@ -24,33 +25,44 @@ export function OverlayControls({
   isSpeechSupported,
   isClient,
   isModelReady = true,
+  targetLanguage,
 }: OverlayControlsProps) {
+  const hasTargetLanguage = targetLanguage && targetLanguage.trim() !== "";
   return (
     <>
-
       <div
         className="flex flex-col sm:flex-row gap-4 justify-center"
         suppressHydrationWarning={true}
       >
         <button
           onClick={isListening ? onStopListening : onStartListening}
-          disabled={!isClient || isSpeechSupported === false || !isModelReady}
+          disabled={
+            !isClient ||
+            isSpeechSupported === false ||
+            !isModelReady ||
+            (!isListening && !hasTargetLanguage)
+          }
           data-umami-event={isListening ? "stop-recording" : "start-recording"}
           className={`inline-flex items-center px-8 py-4 rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl ${
-            !isClient || isSpeechSupported === false || !isModelReady
+            !isClient ||
+            isSpeechSupported === false ||
+            !isModelReady ||
+            (!isListening && !hasTargetLanguage)
               ? "bg-gray-400 cursor-not-allowed text-white"
               : isListening
-              ? "bg-red-600 hover:bg-red-700 text-white"
-              : "bg-blue-600 hover:bg-blue-700 text-white"
+                ? "bg-red-600 hover:bg-red-700 text-white"
+                : "bg-blue-600 hover:bg-blue-700 text-white"
           }`}
           title={
             !isClient
               ? "Loading..."
               : isSpeechSupported === false
-              ? "Browser not compatible"
-              : !isModelReady
-              ? "Waiting for AI model..."
-              : ""
+                ? "Browser not compatible"
+                : !isModelReady
+                  ? "Waiting for AI model..."
+                  : !hasTargetLanguage
+                    ? "Please select a target language"
+                    : ""
           }
           suppressHydrationWarning={true}
         >
@@ -92,6 +104,13 @@ export function OverlayControls({
         )}
       </div>
 
+      {!hasTargetLanguage && !isListening && (
+        <div className="mt-4 p-3 rounded-lg border bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800">
+          <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+            ⚠️ Please select a target language before starting
+          </p>
+        </div>
+      )}
 
       {isOverlayMode && (
         <div

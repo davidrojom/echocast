@@ -1,5 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
-
+import { useState, useRef, useEffect, useCallback } from "react";
 
 type OverlayWindow =
   | Window
@@ -17,7 +16,7 @@ interface UseOverlayWindowOptions {
 
 interface UseOverlayWindowReturn {
   isOpen: boolean;
-  overlayType: 'pip' | 'popup' | null;
+  overlayType: "pip" | "popup" | null;
   openOverlay: () => Promise<void>;
   closeOverlay: () => void;
   updateSubtitles: (subtitle: string, translation: string) => void;
@@ -29,41 +28,39 @@ export function useOverlayWindow({
   onReset,
 }: UseOverlayWindowOptions): UseOverlayWindowReturn {
   const [isOpen, setIsOpen] = useState(false);
-  const [overlayType, setOverlayType] = useState<'pip' | 'popup' | null>(null);
+  const [overlayType, setOverlayType] = useState<"pip" | "popup" | null>(null);
   const overlayWindowRef = useRef<OverlayWindow | null>(null);
   const canvasUpdateRef = useRef<
     ((original: string, translated: string) => void) | null
   >(null);
-  const currentTranscriptRef = useRef<string>('');
-  const currentTranslationRef = useRef<string>('');
+  const currentTranscriptRef = useRef<string>("");
+  const currentTranslationRef = useRef<string>("");
 
   const createPictureInPictureOverlay = useCallback(async () => {
     try {
-      const canvas = document.createElement('canvas');
+      const canvas = document.createElement("canvas");
       canvas.width = 800;
       canvas.height = 200;
-      const ctx = canvas.getContext('2d');
+      const ctx = canvas.getContext("2d");
 
       if (!ctx) {
-        throw new Error('Could not get canvas context');
+        throw new Error("Could not get canvas context");
       }
 
       const drawText = (originalText: string, translatedText: string) => {
         if (!ctx) return;
 
-
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.95)';
+        ctx.fillStyle = "rgba(0, 0, 0, 0.95)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 32px -apple-system, BlinkMacSystemFont, sans-serif';
-        ctx.textAlign = 'center';
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "bold 32px -apple-system, BlinkMacSystemFont, sans-serif";
+        ctx.textAlign = "center";
 
         const translatedWords = (
-          translatedText || 'Waiting for audio...'
-        ).split(' ');
-        let translatedLine = '';
+          translatedText || "Waiting for audio..."
+        ).split(" ");
+        let translatedLine = "";
         let translatedY = canvas.height / 2 - 20;
         const translatedLineHeight = 40;
         const maxTranslatedLines = 3;
@@ -72,15 +69,16 @@ export function useOverlayWindow({
 
         for (
           let n = 0;
-          n < translatedWords.length && translatedLineCount < maxTranslatedLines;
+          n < translatedWords.length &&
+          translatedLineCount < maxTranslatedLines;
           n++
         ) {
-          const testLine = translatedLine + translatedWords[n] + ' ';
+          const testLine = translatedLine + translatedWords[n] + " ";
           const metrics = ctx.measureText(testLine);
           const testWidth = metrics.width;
           if (testWidth > maxWidth && n > 0) {
             ctx.fillText(translatedLine, canvas.width / 2, translatedY);
-            translatedLine = translatedWords[n] + ' ';
+            translatedLine = translatedWords[n] + " ";
             translatedY += translatedLineHeight;
             translatedLineCount++;
           } else {
@@ -91,30 +89,29 @@ export function useOverlayWindow({
           ctx.fillText(translatedLine, canvas.width / 2, translatedY);
         }
 
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "bold 16px -apple-system, BlinkMacSystemFont, sans-serif";
+        ctx.textAlign = "left";
 
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 16px -apple-system, BlinkMacSystemFont, sans-serif';
-        ctx.textAlign = 'left';
-
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+        ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
         ctx.fillRect(15, 15, 80, 30);
 
-        ctx.fillStyle = '#ffffff';
-        ctx.fillText('CC', 25, 35);
+        ctx.fillStyle = "#ffffff";
+        ctx.fillText("CC", 25, 35);
 
         const targetLanguageFlag = getLanguageFlag(targetLanguage);
-        ctx.font = '20px Arial';
+        ctx.font = "20px Arial";
         ctx.fillText(targetLanguageFlag, 55, 35);
       };
 
-      drawText('', '');
+      drawText("", "");
 
-      const video = document.createElement('video');
-      video.style.position = 'fixed';
-      video.style.top = '-1000px';
-      video.style.left = '-1000px';
-      video.style.width = '1px';
-      video.style.height = '1px';
+      const video = document.createElement("video");
+      video.style.position = "fixed";
+      video.style.top = "-1000px";
+      video.style.left = "-1000px";
+      video.style.width = "1px";
+      video.style.height = "1px";
       video.muted = true;
       video.playsInline = true;
       video.autoplay = true;
@@ -142,7 +139,7 @@ export function useOverlayWindow({
           try {
             await document.exitPictureInPicture();
           } catch (e) {
-            console.log('Error closing PiP:', e);
+            console.log("Error closing PiP:", e);
           }
           if (video.parentNode) {
             document.body.removeChild(video);
@@ -163,14 +160,14 @@ export function useOverlayWindow({
         ) {
           canvasUpdateRef.current(
             currentTranscriptRef.current,
-            currentTranslationRef.current
+            currentTranslationRef.current,
           );
         } else {
           clearInterval(updateInterval);
         }
       }, 100);
 
-      video.addEventListener('leavepictureinpicture', () => {
+      video.addEventListener("leavepictureinpicture", () => {
         clearInterval(updateInterval);
         onReset();
         setIsOpen(false);
@@ -193,73 +190,72 @@ export function useOverlayWindow({
     const y = 50;
 
     const overlayWindow = window.open(
-      '',
-      'echocast-overlay',
-      `width=${w},height=${h},left=${x},top=${y},resizable=yes,scrollbars=no`
+      "",
+      "echocast-overlay",
+      `width=${w},height=${h},left=${x},top=${y},resizable=yes,scrollbars=no`,
     );
 
     if (!overlayWindow) {
-      alert('Could not open subtitle window. Check that popups are allowed.');
+      alert("Could not open subtitle window. Check that popups are allowed.");
       return;
     }
 
     overlayWindowRef.current = overlayWindow;
 
     try {
-      const response = await fetch('/overlay.html');
-      if (!response.ok) throw new Error('Failed to load template');
+      const response = await fetch("/overlay.html");
+      if (!response.ok) throw new Error("Failed to load template");
       const htmlContent = await response.text();
-      
+
       overlayWindow.document.write(htmlContent);
       overlayWindow.document.close();
     } catch (error) {
-      console.error('Error loading overlay template:', error);
+      console.error("Error loading overlay template:", error);
 
-      overlayWindow.document.write('<html><body><h1>Error loading template</h1></body></html>');
+      overlayWindow.document.write(
+        "<html><body><h1>Error loading template</h1></body></html>",
+      );
       overlayWindow.document.close();
     }
 
     setTimeout(() => {
       if (overlayWindow && !overlayWindow.closed) {
-        overlayWindow.addEventListener('beforeunload', () => {
+        overlayWindow.addEventListener("beforeunload", () => {
           setIsOpen(false);
           setOverlayType(null);
           overlayWindowRef.current = null;
         });
 
-
-        
         try {
           overlayWindow.focus();
           overlayWindow.moveBy(0, 0);
         } catch (e) {
-          console.log('Error focusing window:', e);
+          console.log("Error focusing window:", e);
         }
       }
     }, 200);
   }, [targetLanguage, getLanguageFlag]);
 
   const openOverlay = useCallback(async () => {
-
     setIsOpen(true);
 
     if (
-      'pictureInPictureEnabled' in document &&
+      "pictureInPictureEnabled" in document &&
       document.pictureInPictureEnabled
     ) {
       try {
         await createPictureInPictureOverlay();
-        setOverlayType('pip');
+        setOverlayType("pip");
         return;
       } catch (error) {
-        console.log('Picture-in-Picture failed, using normal popup:', error);
+        console.log("Picture-in-Picture failed, using normal popup:", error);
       }
     } else {
-      console.log('Picture-in-Picture is not available in this browser');
+      console.log("Picture-in-Picture is not available in this browser");
     }
 
     createPopupOverlay();
-    setOverlayType('popup');
+    setOverlayType("popup");
   }, [onReset, createPictureInPictureOverlay, createPopupOverlay]);
 
   const closeOverlay = useCallback(() => {
@@ -276,39 +272,42 @@ export function useOverlayWindow({
       currentTranscriptRef.current = subtitle;
       currentTranslationRef.current = translation;
 
-      if (isOpen && overlayWindowRef.current && !overlayWindowRef.current.closed) {
+      if (
+        isOpen &&
+        overlayWindowRef.current &&
+        !overlayWindowRef.current.closed
+      ) {
         try {
           if (
-            'updateText' in overlayWindowRef.current &&
+            "updateText" in overlayWindowRef.current &&
             overlayWindowRef.current.updateText
           ) {
             overlayWindowRef.current.updateText(subtitle, translation);
-          } else if ('document' in overlayWindowRef.current) {
+          } else if ("document" in overlayWindowRef.current) {
             const translationElement =
-              overlayWindowRef.current.document.getElementById('translation');
+              overlayWindowRef.current.document.getElementById("translation");
 
             if (translationElement) {
               translationElement.textContent =
-                translation || 'Waiting for audio...';
+                translation || "Waiting for audio...";
             }
 
             const languageFlagElement =
-              overlayWindowRef.current.document.getElementById('language-flag');
+              overlayWindowRef.current.document.getElementById("language-flag");
             if (languageFlagElement) {
               languageFlagElement.textContent = getLanguageFlag(targetLanguage);
             }
           }
         } catch {
-          console.log('Overlay window closed or inaccessible');
+          console.log("Overlay window closed or inaccessible");
           onReset();
           setIsOpen(false);
           overlayWindowRef.current = null;
         }
       }
     },
-    [isOpen, targetLanguage, getLanguageFlag, onReset]
+    [isOpen, targetLanguage, getLanguageFlag, onReset],
   );
-
 
   useEffect(() => {
     return () => {

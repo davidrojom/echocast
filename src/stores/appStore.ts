@@ -26,8 +26,8 @@ interface AppState {
 }
 
 const initialState = {
-  sourceLanguage: "es",
-  targetLanguage: "en",
+  sourceLanguage: "",
+  targetLanguage: "",
   isListening: false,
   displaySubtitle: "",
   displayTranslation: "",

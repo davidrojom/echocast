@@ -1,4 +1,4 @@
-import { ITranslationService } from '../ITranslationService';
+import { ITranslationService } from "../ITranslationService";
 
 export class TranslationService implements ITranslationService {
   public readonly name: string;
@@ -9,26 +9,30 @@ export class TranslationService implements ITranslationService {
     this.provider = provider;
   }
 
-  async translate(text: string, source: string, target: string, context?: string): Promise<string> {
-
+  async translate(
+    text: string,
+    source: string,
+    target: string,
+    context?: string,
+  ): Promise<string> {
     try {
-      const response = await fetch('/api/translate', {
-        method: 'POST',
+      const response = await fetch("/api/translate", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           text,
           source,
           target,
           context,
-          provider: this.provider
+          provider: this.provider,
         }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Translation request failed');
+        throw new Error(errorData.error || "Translation request failed");
       }
 
       const data = await response.json();

@@ -7,7 +7,12 @@ export interface ITranslationService {
    * @param context Optional previous context to aid translation
    * @returns The translated text
    */
-  translate(text: string, source: string, target: string, context?: string): Promise<string>;
+  translate(
+    text: string,
+    source: string,
+    target: string,
+    context?: string,
+  ): Promise<string>;
 
   /**
    * The name of the translation provider.

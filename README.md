@@ -50,10 +50,10 @@ Open [localhost:3000](http://localhost:3000) in Chrome or Edge
 
 ## 🔧 Translation
 
-| Provider | Requires API Key | Features |
-|----------|-----------------|----------|
-| **Gemini** | ✅ | Google's latest AI, context-aware, natural translations |
-| **Mock** | ❌ | Basic dictionary, ideal for development |
+| Provider   | Requires API Key | Features                                                |
+| ---------- | ---------------- | ------------------------------------------------------- |
+| **Gemini** | ✅               | Google's latest AI, context-aware, natural translations |
+| **Mock**   | ❌               | Basic dictionary, ideal for development                 |
 
 Configure in `.env.local` (server-side only):
 
@@ -63,12 +63,12 @@ GEMINI_API_KEY=your_api_key
 
 ## 🌐 Browser Compatibility
 
-| Browser | Native STT | Whisper Mode | Picture-in-Picture | Status |
-|---------|-----------|--------------|-------------------|--------|
-| Chrome | ✅ | ✅ | ✅ | Fully supported |
-| Edge | ✅ | ✅ | ✅ | Fully supported |
-| Firefox | ❌ | ✅ | ❌ | Use Whisper + Popup |
-| Safari | ❌ | ✅ | ❌ | Use Whisper + Popup |
+| Browser | Native STT | Whisper Mode | Picture-in-Picture | Status              |
+| ------- | ---------- | ------------ | ------------------ | ------------------- |
+| Chrome  | ✅         | ✅           | ✅                 | Fully supported     |
+| Edge    | ✅         | ✅           | ✅                 | Fully supported     |
+| Firefox | ❌         | ✅           | ❌                 | Use Whisper + Popup |
+| Safari  | ❌         | ✅           | ❌                 | Use Whisper + Popup |
 
 **Recommended**: Chrome or Edge for full feature support including Picture-in-Picture overlay.
 
@@ -84,11 +84,13 @@ npm run lint     # Linter
 ## 🚢 Deploy
 
 ### Vercel
+
 ```bash
 npm run build && npx vercel
 ```
 
 ### Docker
+
 ```bash
 docker build -t echocast .
 docker run -p 3000:3000 echocast

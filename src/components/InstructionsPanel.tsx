@@ -7,7 +7,6 @@ export function InstructionsPanel({
 }: InstructionsPanelProps) {
   return (
     <>
-
       <div className="mt-8 p-6 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
         <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
           How to use EchoCast:
@@ -18,9 +17,7 @@ export function InstructionsPanel({
             Click &ldquo;Start recording&rdquo; and allow microphone access
           </li>
           <li>Speak in your native language to test transcription</li>
-          <li>
-            When ready to present, click &ldquo;Presentation mode&rdquo;
-          </li>
+          <li>When ready to present, click &ldquo;Presentation mode&rdquo;</li>
           <li>
             It will try to use <strong>Picture-in-Picture</strong> (always on
             top) or popup window
@@ -39,8 +36,8 @@ export function InstructionsPanel({
             🎯 Picture-in-Picture: True Always-on-Top
           </h5>
           <p className="text-sm text-green-700 dark:text-green-300 mb-2">
-            If your browser supports it,{" "}
-            <strong>Picture-in-Picture</strong> will be used automatically:
+            If your browser supports it, <strong>Picture-in-Picture</strong>{" "}
+            will be used automatically:
           </p>
           <p className="text-sm text-green-700 dark:text-green-300">
             ✅ Always visible on top of all applications
@@ -67,7 +64,6 @@ export function InstructionsPanel({
           </p>
         </div>
       </div>
-
 
       {isSpeechSupported === false && (
         <div className="mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">

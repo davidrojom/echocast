@@ -29,14 +29,12 @@ export default function Home() {
 
   const { translateText, isTranslating } = useTranslation();
   const isClient = useClientOnly();
-  const [sttMode, setSttMode] = useState<'native' | 'whisper'>('whisper');
-
+  const [sttMode, setSttMode] = useState<"native" | "whisper">("whisper");
 
   const getLanguageFlag = useCallback((langCode: string): string => {
-    const language = LANGUAGES.find(lang => lang.code === langCode);
+    const language = LANGUAGES.find((lang) => lang.code === langCode);
     return language?.flag || "🌐";
   }, []);
-
 
   const {
     devices: audioDevices,
@@ -45,16 +43,18 @@ export default function Home() {
     isUpdating: isUpdatingDevices,
   } = useAudioDevices();
 
-
-  const onOverlayUpdate = useCallback((subtitle: string, translation: string) => {
-    if (overlayWindowRef.current) {
-      overlayWindowRef.current.updateSubtitles(subtitle, translation);
-    }
-  }, []);
-
+  const onOverlayUpdate = useCallback(
+    (subtitle: string, translation: string) => {
+      if (overlayWindowRef.current) {
+        overlayWindowRef.current.updateSubtitles(subtitle, translation);
+      }
+    },
+    [],
+  );
 
   const subtitleQueue = useSubtitleQueue({
-    translateText: (text, options, context) => translateText({ text, options, context }),
+    translateText: (text, options, context) =>
+      translateText({ text, options, context }),
     sourceLanguage,
     targetLanguage,
     onSubtitleUpdate: setDisplaySubtitle,
@@ -63,9 +63,9 @@ export default function Home() {
     apiProvider: translationProvider,
   });
 
-
-  const overlayWindowRef = useRef<{ updateSubtitles: (s: string, t: string) => void } | null>(null);
-
+  const overlayWindowRef = useRef<{
+    updateSubtitles: (s: string, t: string) => void;
+  } | null>(null);
 
   const overlayWindow = useOverlayWindow({
     targetLanguage,
@@ -73,11 +73,9 @@ export default function Home() {
     onReset: subtitleQueue.reset,
   });
 
-
   useEffect(() => {
     overlayWindowRef.current = overlayWindow;
   }, [overlayWindow]);
-
 
   const speechRecognition = useSpeechRecognition({
     language: sourceLanguage,
@@ -87,15 +85,13 @@ export default function Home() {
       subtitleQueue.processNewText(transcript, isFinal);
     },
     onError: (error) => {
-      console.error('Speech recognition error:', error);
+      console.error("Speech recognition error:", error);
     },
   });
-
 
   useEffect(() => {
     setIsListening(speechRecognition.isListening);
   }, [speechRecognition.isListening, setIsListening]);
-
 
   useEffect(() => {
     subtitleQueue.reset();
@@ -106,9 +102,9 @@ export default function Home() {
       try {
         await speechRecognition.startListening();
       } catch (error) {
-        console.error('Error starting listening:', error);
+        console.error("Error starting listening:", error);
         alert(
-          'Could not access selected microphone. Please allow access or select another device.'
+          "Could not access selected microphone. Please allow access or select another device.",
         );
       }
     } else {
@@ -116,7 +112,6 @@ export default function Home() {
       subtitleQueue.reset();
     }
   };
-
 
   if (!isClient) {
     return (
@@ -140,7 +135,6 @@ export default function Home() {
       className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800"
       suppressHydrationWarning={true}
     >
-
       <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
@@ -157,10 +151,8 @@ export default function Home() {
         </div>
       </header>
 
-
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
-
           {speechRecognition.isModelLoading && (
             <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg">
               <div className="flex items-center gap-3 mb-2">
@@ -170,9 +162,11 @@ export default function Home() {
                 </p>
               </div>
               <div className="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-2.5">
-                <div 
-                  className="bg-blue-600 dark:bg-blue-400 h-2.5 rounded-full transition-all duration-300 ease-out" 
-                  style={{ width: `${speechRecognition.loadingProgress || 0}%` }}
+                <div
+                  className="bg-blue-600 dark:bg-blue-400 h-2.5 rounded-full transition-all duration-300 ease-out"
+                  style={{
+                    width: `${speechRecognition.loadingProgress || 0}%`,
+                  }}
                 ></div>
               </div>
               <p className="text-right text-xs text-blue-600 dark:text-blue-400 mt-1">
@@ -182,7 +176,6 @@ export default function Home() {
           )}
 
           <LanguageSettings />
-
 
           <AudioDeviceSelector
             devices={audioDevices}
@@ -194,12 +187,10 @@ export default function Home() {
             onSttModeChange={setSttMode}
           />
 
-
           <SubtitlePreview
             isTranslating={isTranslating}
             getLanguageFlag={getLanguageFlag}
           />
-
 
           <OverlayControls
             isListening={speechRecognition.isListening}
@@ -212,10 +203,12 @@ export default function Home() {
             isSpeechSupported={speechRecognition.isSupported}
             isClient={isClient}
             isModelReady={speechRecognition.isModelReady}
+            targetLanguage={targetLanguage}
           />
 
-
-          <InstructionsPanel isSpeechSupported={speechRecognition.isSupported} />
+          <InstructionsPanel
+            isSpeechSupported={speechRecognition.isSupported}
+          />
         </div>
       </main>
     </div>

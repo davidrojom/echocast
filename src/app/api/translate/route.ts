@@ -24,13 +24,13 @@ export async function POST(req: NextRequest) {
           text,
           source,
           target,
-          context
+          context,
         );
         break;
       default:
         return NextResponse.json(
           { error: "Invalid provider" },
-          { status: 400 }
+          { status: 400 },
         );
     }
 
@@ -111,7 +111,7 @@ async function translateWithGemini(
   text: string,
   source: string,
   target: string,
-  context?: string
+  context?: string,
 ) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error("GEMINI_API_KEY not configured");

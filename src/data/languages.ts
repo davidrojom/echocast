@@ -103,7 +103,7 @@ export const LANGUAGES: Language[] = [
 
 export const searchLanguages = (
   query: string,
-  includeAuto: boolean = false
+  includeAuto: boolean = false,
 ): Language[] => {
   if (!query.trim()) {
     return includeAuto

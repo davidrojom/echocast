@@ -6,7 +6,7 @@ interface UseSubtitleQueueOptions {
   translateText: (
     text: string,
     options: TranslationOptions,
-    context?: string
+    context?: string,
   ) => Promise<string>;
   sourceLanguage: string;
   targetLanguage: string;
@@ -67,7 +67,7 @@ export function useSubtitleQueue({
       apiProvider,
       onTranslationUpdate,
       onOverlayUpdate,
-    ]
+    ],
   );
 
   const debouncedTranslate = useDebouncedCallback(performTranslation, 200);
@@ -114,7 +114,7 @@ export function useSubtitleQueue({
       onSubtitleUpdate,
       onTranslationUpdate,
       NEW_PHRASE_DELAY,
-    ]
+    ],
   );
 
   const clearQueue = useCallback(() => {

@@ -36,15 +36,14 @@ export default function LanguageSelector({
   useEffect(() => {
     const languages = searchLanguages(searchQuery, includeAuto);
 
-
     if (!searchQuery.trim()) {
       const popular = languages.filter(
         (lang) =>
           POPULAR_LANGUAGES.includes(lang.code) &&
-          (includeAuto || lang.code !== "auto")
+          (includeAuto || lang.code !== "auto"),
       );
       const others = languages.filter(
-        (lang) => !POPULAR_LANGUAGES.includes(lang.code)
+        (lang) => !POPULAR_LANGUAGES.includes(lang.code),
       );
       setFilteredLanguages([...popular, ...others]);
     } else {
@@ -140,7 +139,6 @@ export default function LanguageSelector({
 
       {isOpen && (
         <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-80 overflow-hidden">
-
           <div className="p-3 border-b border-gray-200 dark:border-gray-600">
             <input
               ref={inputRef}
@@ -153,11 +151,9 @@ export default function LanguageSelector({
             />
           </div>
 
-
           <div className="overflow-y-auto max-h-64">
             {filteredLanguages.length > 0 ? (
               <>
-
                 {!searchQuery.trim() && (
                   <div className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-100 dark:border-gray-600">
                     Popular languages
@@ -171,7 +167,7 @@ export default function LanguageSelector({
                     index > 0 &&
                     isPopular !==
                       POPULAR_LANGUAGES.includes(
-                        filteredLanguages[index - 1].code
+                        filteredLanguages[index - 1].code,
                       );
 
                   return (

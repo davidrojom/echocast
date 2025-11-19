@@ -34,6 +34,7 @@ npm run lint
 - **Language Detection**: franc library
 
 ### Path Aliases
+
 TypeScript path alias: `echocast/*` → `./src/*`
 
 ## Core Architecture
@@ -41,6 +42,7 @@ TypeScript path alias: `echocast/*` → `./src/*`
 ### State Management (Zustand)
 
 Global application state managed through [src/stores/appStore.ts](src/stores/appStore.ts):
+
 - Language selection (source/target)
 - Listening state
 - Display subtitles and translations
@@ -81,6 +83,7 @@ The application follows a layered hook architecture:
 ```
 
 Key hooks:
+
 - **useSpeechRecognition**: Abstracts STT mode selection and audio device handling
 - **useWhisper**: Manages Whisper model lifecycle, audio processing, segmentation
 - **useSubtitleQueue**: Handles text accumulation, phrase detection (1s silence = new phrase), translation coordination
@@ -102,6 +105,7 @@ Clean service architecture with factory pattern:
 ```
 
 Translation happens server-side via Next.js API route [src/app/api/translate/route.ts](src/app/api/translate/route.ts):
+
 - Uses Google Gemini AI for natural, context-aware translations
 - Auto-detects language using `franc` library
 - Auto-swaps source/target if detection conflicts with user selection (e.g., user selected Spanish→English but speaks English)
@@ -155,12 +159,12 @@ Note: API keys are server-side only (accessed via `/api/translate` route), not e
 
 ## Browser Compatibility
 
-| Feature | Chrome/Edge | Firefox | Safari |
-|---------|-------------|---------|--------|
-| Whisper Mode | ✅ | ✅ | ✅ |
-| Native STT | ✅ | ❌ | ❌ |
-| Picture-in-Picture | ✅ | ❌ | ❌ |
-| Popup Overlay | ✅ | ✅ | ✅ |
+| Feature            | Chrome/Edge | Firefox | Safari |
+| ------------------ | ----------- | ------- | ------ |
+| Whisper Mode       | ✅          | ✅      | ✅     |
+| Native STT         | ✅          | ❌      | ❌     |
+| Picture-in-Picture | ✅          | ❌      | ❌     |
+| Popup Overlay      | ✅          | ✅      | ✅     |
 
 **Recommended**: Chrome or Edge for full feature support.
 

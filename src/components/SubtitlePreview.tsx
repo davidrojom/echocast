@@ -10,7 +10,6 @@ export function SubtitlePreview({
   getLanguageFlag,
 }: SubtitlePreviewProps) {
   const {
-
     targetLanguage,
     displaySubtitle: subtitle,
     displayTranslation: translation,

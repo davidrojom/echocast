@@ -1,5 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
-import { TranslationServiceFactory, TranslationProvider } from "../services/translation/TranslationServiceFactory";
+import {
+  TranslationServiceFactory,
+  TranslationProvider,
+} from "../services/translation/TranslationServiceFactory";
 
 export interface TranslationOptions {
   sourceLanguage: string;
@@ -35,7 +38,7 @@ export const useTranslation = () => {
 async function performTranslation(
   text: string,
   options: TranslationOptions,
-  context?: string
+  context?: string,
 ): Promise<string> {
   if (!text.trim()) return "";
 
@@ -44,8 +47,13 @@ async function performTranslation(
   try {
     const factory = TranslationServiceFactory.getInstance();
     const service = factory.getService(apiProvider);
-    
-    return await service.translate(text, sourceLanguage, targetLanguage, context);
+
+    return await service.translate(
+      text,
+      sourceLanguage,
+      targetLanguage,
+      context,
+    );
   } catch (err) {
     console.error("Translation error:", err);
     throw err;

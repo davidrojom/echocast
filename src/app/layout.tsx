@@ -28,7 +28,11 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning={true}>
       <head>
         <link rel="icon" href="/favicon.png" />
-        <script defer src="https://analytics.davidrojom.com/script.js" data-website-id="b76976f5-5e5a-44db-8cd6-1d3abd517848"></script>
+        <script
+          defer
+          src="https://analytics.davidrojom.com/script.js"
+          data-website-id="b76976f5-5e5a-44db-8cd6-1d3abd517848"
+        ></script>
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}

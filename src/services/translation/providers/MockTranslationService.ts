@@ -1,5 +1,5 @@
-import { ITranslationService } from '../ITranslationService';
-import mockTranslationsData from '../../../data/mockTranslations.json';
+import { ITranslationService } from "../ITranslationService";
+import mockTranslationsData from "../../../data/mockTranslations.json";
 
 type MockTranslations = {
   [key: string]: {
@@ -10,20 +10,27 @@ type MockTranslations = {
 const mockTranslations: MockTranslations = mockTranslationsData;
 
 export class MockTranslationService implements ITranslationService {
-  public readonly name = 'Mock Translation';
+  public readonly name = "Mock Translation";
 
-  async translate(text: string, source: string, target: string, context?: string): Promise<string> {
+  async translate(
+    text: string,
+    source: string,
+    target: string,
+    context?: string,
+  ): Promise<string> {
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     console.log("Mock translation called:", { text, source, target });
 
     const lowerText = text.toLowerCase().trim();
 
-    const isSpanishToEnglish = source.startsWith("es") && target.startsWith("en");
-    const isEnglishToSpanish = source.startsWith("en") && target.startsWith("es");
+    const isSpanishToEnglish =
+      source.startsWith("es") && target.startsWith("en");
+    const isEnglishToSpanish =
+      source.startsWith("en") && target.startsWith("es");
 
     if (mockTranslations[lowerText]) {
-      const targetLangCode = target.split('-')[0];
+      const targetLangCode = target.split("-")[0];
       if (mockTranslations[lowerText][targetLangCode]) {
         return mockTranslations[lowerText][targetLangCode];
       }
@@ -31,7 +38,7 @@ export class MockTranslationService implements ITranslationService {
 
     for (const [sourceWord, translations] of Object.entries(mockTranslations)) {
       if (lowerText.includes(sourceWord) || sourceWord.includes(lowerText)) {
-        const targetLangCode = target.split('-')[0];
+        const targetLangCode = target.split("-")[0];
         if (translations[targetLangCode]) {
           return translations[targetLangCode];
         }
@@ -46,11 +53,11 @@ export class MockTranslationService implements ITranslationService {
       const hasSpanishChars = /[ñáéíóúü]/i.test(text);
       const commonSpanishWords =
         /\b(el|la|los|las|de|en|con|por|para|que|es|está|son|del|al)\b/i.test(
-          text
+          text,
         );
       const commonEnglishWords =
         /\b(the|and|or|of|in|to|for|with|is|are|was|were|this|that)\b/i.test(
-          text
+          text,
         );
 
       if (hasSpanishChars || (commonSpanishWords && !commonEnglishWords)) {

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from "react";
 
 interface UseAudioDevicesReturn {
   devices: MediaDeviceInfo[];
@@ -11,7 +11,7 @@ interface UseAudioDevicesReturn {
 
 export function useAudioDevices(): UseAudioDevicesReturn {
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
-  const [selectedDeviceId, setSelectedDeviceId] = useState<string>('default');
+  const [selectedDeviceId, setSelectedDeviceId] = useState<string>("default");
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -20,9 +20,8 @@ export function useAudioDevices(): UseAudioDevicesReturn {
     try {
       const allDevices = await navigator.mediaDevices.enumerateDevices();
       const audioInputs = allDevices.filter(
-        (device) => device.kind === 'audioinput'
+        (device) => device.kind === "audioinput",
       );
-
 
       const currentDeviceIds = devices.map((d) => d.deviceId).sort();
       const newDeviceIds = audioInputs.map((d) => d.deviceId).sort();
@@ -34,12 +33,11 @@ export function useAudioDevices(): UseAudioDevicesReturn {
         setDevices(audioInputs);
         setError(null);
 
-
         if (
-          selectedDeviceId !== 'default' &&
+          selectedDeviceId !== "default" &&
           !audioInputs.find((d) => d.deviceId === selectedDeviceId)
         ) {
-          setSelectedDeviceId('default');
+          setSelectedDeviceId("default");
         }
 
         return true;
@@ -56,20 +54,17 @@ export function useAudioDevices(): UseAudioDevicesReturn {
     }
   }, [devices, selectedDeviceId]);
 
-
   useEffect(() => {
     const getInitialDevices = async () => {
       try {
-
         await navigator.mediaDevices.getUserMedia({ audio: true });
         await updateDevices();
 
-
         const allDevices = await navigator.mediaDevices.enumerateDevices();
         const audioInputs = allDevices.filter(
-          (device) => device.kind === 'audioinput'
+          (device) => device.kind === "audioinput",
         );
-        if (audioInputs.length > 0 && selectedDeviceId === 'default') {
+        if (audioInputs.length > 0 && selectedDeviceId === "default") {
           setSelectedDeviceId(audioInputs[0].deviceId);
         }
       } catch (err) {
@@ -82,14 +77,12 @@ export function useAudioDevices(): UseAudioDevicesReturn {
     getInitialDevices();
   }, []);
 
-
   useEffect(() => {
     const handleDeviceChange = () => {
       updateDevices();
     };
 
-    navigator.mediaDevices.addEventListener('devicechange', handleDeviceChange);
-
+    navigator.mediaDevices.addEventListener("devicechange", handleDeviceChange);
 
     const pollingInterval = setInterval(() => {
       updateDevices();
@@ -97,8 +90,8 @@ export function useAudioDevices(): UseAudioDevicesReturn {
 
     return () => {
       navigator.mediaDevices.removeEventListener(
-        'devicechange',
-        handleDeviceChange
+        "devicechange",
+        handleDeviceChange,
       );
       clearInterval(pollingInterval);
     };
