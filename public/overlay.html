@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EchoCast Overlay</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.85);
+            color: white;
+            font-family: system-ui, -apple-system, sans-serif;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+        #container {
+            transition: all 0.3s ease;
+        }
+        .subtitle {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: #e2e8f0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        .translation {
+            font-size: 32px;
+            font-weight: 600;
+            color: #60a5fa;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        .meta {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="subtitle" class="subtitle">Waiting for speech...</div>
+        <div id="translation" class="translation"></div>
+        <div id="meta" class="meta">EchoCast Live Translation</div>
+    </div>
+    <script>
+        window.addEventListener('message', (event) => {
+            const { type, payload } = event.data;
+            if (type === 'UPDATE_SUBTITLES') {
+                const subEl = document.getElementById('subtitle');
+                const transEl = document.getElementById('translation');
+                
+                if (subEl) subEl.textContent = payload.subtitle;
+                if (transEl) transEl.textContent = payload.translation;
+                
+                // Auto-scroll to bottom
+                window.scrollTo(0, document.body.scrollHeight);
+            }
+        });
+    </script>
+</body>
+</html>
