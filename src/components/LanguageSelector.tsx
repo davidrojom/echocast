@@ -188,6 +188,8 @@ export default function LanguageSelector({
                             : ""
                         }`}
                         onClick={() => handleLanguageSelect(language)}
+                        data-umami-event="select-language"
+                        data-umami-event-language={language.code}
                       >
                         <div className="flex items-center space-x-3">
                           <span className="text-xl">{language.flag}</span>

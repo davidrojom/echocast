@@ -35,6 +35,7 @@ export function OverlayControls({
         <button
           onClick={isListening ? onStopListening : onStartListening}
           disabled={!isClient || isSpeechSupported === false || !isModelReady}
+          data-umami-event={isListening ? "stop-recording" : "start-recording"}
           className={`inline-flex items-center px-8 py-4 rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl ${
             !isClient || isSpeechSupported === false || !isModelReady
               ? "bg-gray-400 cursor-not-allowed text-white"
@@ -69,6 +70,7 @@ export function OverlayControls({
         {isListening && !isOverlayMode && (
           <button
             onClick={onOpenOverlay}
+            data-umami-event="open-presentation-mode"
             className="inline-flex items-center px-8 py-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-colors shadow-lg hover:shadow-xl"
           >
             <Play className="mr-2 h-5 w-5" />
@@ -79,6 +81,8 @@ export function OverlayControls({
         {isOverlayMode && (
           <button
             onClick={onCloseOverlay}
+            data-umami-event="close-presentation-mode"
+            data-umami-event-type={overlayType || "unknown"}
             className="inline-flex items-center px-8 py-4 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl transition-colors shadow-lg hover:shadow-xl"
           >
             <MicOff className="mr-2 h-5 w-5" />
