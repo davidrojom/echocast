@@ -3,7 +3,6 @@ interface AudioDeviceSelectorProps {
   selectedDeviceId: string;
   onDeviceChange: (deviceId: string) => void;
   isListening: boolean;
-  isUpdatingDevices: boolean;
 }
 
 export function AudioDeviceSelector({
@@ -11,7 +10,6 @@ export function AudioDeviceSelector({
   selectedDeviceId,
   onDeviceChange,
   isListening,
-  isUpdatingDevices,
   sttMode,
   onSttModeChange,
 }: AudioDeviceSelectorProps & {
@@ -51,9 +49,7 @@ export function AudioDeviceSelector({
             </select>
           </div>
           <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            {isUpdatingDevices
-              ? "🔄 Updating devices..."
-              : devices.length === 0
+            {!devices.length
                 ? "Loading audio devices..."
                 : `${devices.length} device${devices.length !== 1 ? "s" : ""} found`}
           </p>

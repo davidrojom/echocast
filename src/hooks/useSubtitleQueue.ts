@@ -141,9 +141,8 @@ export function useSubtitleQueue({
       queueRef.current.push(newItem);
       activeTranscriptItemIdRef.current = newItem.id;
 
-      if (queueRef.current.length === 1) {
-        advanceQueue(0);
-      }
+      // Always advance to the new item immediately for live feedback
+      advanceQueue(queueRef.current.length - 1);
     },
     [advanceQueue]
   );

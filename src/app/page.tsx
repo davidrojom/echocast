@@ -27,9 +27,14 @@ export default function Home() {
     translationProvider,
   } = useAppStore();
 
-  const { translateText, isTranslating } = useTranslation();
+  const { translateText: originalTranslateText, isTranslating } = useTranslation();
+  const translateText = useCallback(
+    (text: string, options: any, context?: string) =>
+      originalTranslateText({ text, options, context }),
+    [originalTranslateText],
+  );
   const isClient = useClientOnly();
-  const [sttMode, setSttMode] = useState<"native" | "whisper">("whisper");
+  const [sttMode, setSttMode] = useState<"native" | "whisper">("native");
 
   const getLanguageFlag = useCallback((langCode: string): string => {
     const language = LANGUAGES.find((lang) => lang.code === langCode);
@@ -40,7 +45,6 @@ export default function Home() {
     devices: audioDevices,
     selectedDeviceId,
     setSelectedDeviceId,
-    isUpdating: isUpdatingDevices,
   } = useAudioDevices();
 
   const onOverlayUpdate = useCallback(
@@ -53,8 +57,7 @@ export default function Home() {
   );
 
   const subtitleQueue = useSubtitleQueue({
-    translateText: (text, options, context) =>
-      translateText({ text, options, context }),
+    translateText,
     sourceLanguage,
     targetLanguage,
     onSubtitleUpdate: setDisplaySubtitle,
@@ -182,7 +185,6 @@ export default function Home() {
             selectedDeviceId={selectedDeviceId}
             onDeviceChange={setSelectedDeviceId}
             isListening={speechRecognition.isListening}
-            isUpdatingDevices={isUpdatingDevices}
             sttMode={sttMode}
             onSttModeChange={setSttMode}
           />

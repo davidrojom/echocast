@@ -113,6 +113,9 @@ export function useWhisper({
       if (workerUrl) {
         URL.revokeObjectURL(workerUrl);
       }
+      setIsModelLoading(false);
+      setIsModelReady(false);
+      setLoadingProgress(0);
     };
   }, [enabled]);
 
