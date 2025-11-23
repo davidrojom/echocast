@@ -19,14 +19,41 @@ class WhisperWorker {
 
     self.postMessage({ status: 'loading', message: 'Loading model...' });
 
+    const fileProgress = new Map();
+    let totalFiles = 0;
+
     try {
       this.transcriber = await pipeline('automatic-speech-recognition', modelName, {
         progress_callback: (data) => {
-          self.postMessage({
-            status: 'loading',
-            message: data.status,
-            data: data
-          });
+          if (data.status === 'progress' && data.file) {
+            if (!fileProgress.has(data.file)) {
+              totalFiles++;
+              fileProgress.set(data.file, 0);
+            }
+            
+            fileProgress.set(data.file, data.progress || 0);
+            
+            const completedFiles = Array.from(fileProgress.values()).filter(p => p === 100).length;
+            const currentFileProgress = data.progress || 0;
+            const overallProgress = totalFiles > 0 
+              ? ((completedFiles + (currentFileProgress / 100)) / totalFiles) * 100
+              : 0;
+            
+            self.postMessage({
+              status: 'loading',
+              message: data.status,
+              data: {
+                ...data,
+                progress: Math.min(99, Math.round(overallProgress))
+              }
+            });
+          } else {
+            self.postMessage({
+              status: 'loading',
+              message: data.status,
+              data: data
+            });
+          }
         }
       });
 

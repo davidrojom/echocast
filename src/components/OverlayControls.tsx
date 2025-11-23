@@ -12,6 +12,7 @@ interface OverlayControlsProps {
   isClient: boolean;
   isModelReady?: boolean;
   targetLanguage: string;
+  sourceLanguage: string;
 }
 
 export function OverlayControls({
@@ -26,8 +27,10 @@ export function OverlayControls({
   isClient,
   isModelReady = true,
   targetLanguage,
+  sourceLanguage,
 }: OverlayControlsProps) {
   const hasTargetLanguage = targetLanguage && targetLanguage.trim() !== "";
+  const hasSourceLanguage = sourceLanguage && sourceLanguage.trim() !== "";
   return (
     <>
       <div
@@ -40,14 +43,14 @@ export function OverlayControls({
             !isClient ||
             isSpeechSupported === false ||
             !isModelReady ||
-            (!isListening && !hasTargetLanguage)
+            (!isListening && (!hasTargetLanguage || !hasSourceLanguage))
           }
           data-umami-event={isListening ? "stop-recording" : "start-recording"}
           className={`inline-flex items-center px-8 py-4 rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl ${
             !isClient ||
             isSpeechSupported === false ||
             !isModelReady ||
-            (!isListening && !hasTargetLanguage)
+            (!isListening && (!hasTargetLanguage || !hasSourceLanguage))
               ? "bg-gray-400 cursor-not-allowed text-white"
               : isListening
                 ? "bg-red-600 hover:bg-red-700 text-white"
@@ -60,8 +63,8 @@ export function OverlayControls({
                 ? "Browser not compatible"
                 : !isModelReady
                   ? "Waiting for AI model..."
-                  : !hasTargetLanguage
-                    ? "Please select a target language"
+                  : (!hasTargetLanguage || !hasSourceLanguage)
+                    ? "Please select a target language and a source language"
                     : ""
           }
           suppressHydrationWarning={true}
@@ -102,12 +105,20 @@ export function OverlayControls({
             {overlayType === "pip" ? " (PiP)" : " (Popup)"}
           </button>
         )}
-      </div>
+      </div>  
 
       {!hasTargetLanguage && !isListening && (
         <div className="mt-4 p-3 rounded-lg border bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800">
           <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
             ⚠️ Please select a target language before starting
+          </p>
+        </div>
+      )}
+
+      {!hasSourceLanguage && !isListening && (
+        <div className="mt-4 p-3 rounded-lg border bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800">
+          <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+            ⚠️ Please select a source language before starting
           </p>
         </div>
       )}

@@ -203,6 +203,7 @@ export default function Home() {
             isSpeechSupported={speechRecognition.isSupported}
             isClient={isClient}
             isModelReady={speechRecognition.isModelReady}
+            sourceLanguage={sourceLanguage}
             targetLanguage={targetLanguage}
           />
 

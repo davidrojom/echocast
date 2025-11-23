@@ -58,14 +58,18 @@ export function useAudioDevices(): UseAudioDevicesReturn {
     const getInitialDevices = async () => {
       try {
         await navigator.mediaDevices.getUserMedia({ audio: true });
-        await updateDevices();
-
+        
         const allDevices = await navigator.mediaDevices.enumerateDevices();
         const audioInputs = allDevices.filter(
           (device) => device.kind === "audioinput",
         );
-        if (audioInputs.length > 0 && selectedDeviceId === "default") {
-          setSelectedDeviceId(audioInputs[0].deviceId);
+        
+        setDevices(audioInputs);
+        setError(null);
+        
+        if (audioInputs.length > 0) {
+          const defaultDevice = audioInputs.find(d => d.deviceId === "default") || audioInputs[0];
+          setSelectedDeviceId(defaultDevice.deviceId);
         }
       } catch (err) {
         const error = err instanceof Error ? err : new Error(String(err));
