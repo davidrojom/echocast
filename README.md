@@ -24,7 +24,6 @@ Speak in your native language and display automatically translated subtitles
 🖥️ **Picture-in-Picture overlay** for always-on-top subtitles
 🔌 **AI-powered translation** with Google Gemini
 ⚡ **Works offline** - local Whisper AI + cached translations
-🎯 **Auto language detection** and smart source/target swapping
 
 ## 🚀 Quick Start
 

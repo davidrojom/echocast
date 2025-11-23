@@ -6,8 +6,6 @@ export interface Language {
 }
 
 export const LANGUAGES: Language[] = [
-  { code: "auto", name: "Automatic", nativeName: "Auto-detect", flag: "🌐" },
-
   { code: "es-ES", name: "Spanish", nativeName: "Español", flag: "🇪🇸" },
   { code: "en-US", name: "English", nativeName: "English", flag: "🇺🇸" },
   { code: "fr-FR", name: "French", nativeName: "Français", flag: "🇫🇷" },
@@ -101,20 +99,13 @@ export const LANGUAGES: Language[] = [
   { code: "mn-MN", name: "Mongolian", nativeName: "Монгол", flag: "🇲🇳" },
 ];
 
-export const searchLanguages = (
-  query: string,
-  includeAuto: boolean = false,
-): Language[] => {
+export const searchLanguages = (query: string): Language[] => {
   if (!query.trim()) {
-    return includeAuto
-      ? LANGUAGES
-      : LANGUAGES.filter((lang) => lang.code !== "auto");
+    return LANGUAGES;
   }
 
   const searchTerm = query.toLowerCase().trim();
   const filteredLanguages = LANGUAGES.filter((lang) => {
-    if (!includeAuto && lang.code === "auto") return false;
-
     return (
       lang.name.toLowerCase().includes(searchTerm) ||
       lang.nativeName.toLowerCase().includes(searchTerm) ||
@@ -130,7 +121,6 @@ export const getLanguageByCode = (code: string): Language | undefined => {
 };
 
 export const POPULAR_LANGUAGES = [
-  "auto",
   "es-ES",
   "en-US",
   "fr-FR",

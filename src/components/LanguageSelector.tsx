@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, FC } from "react";
 import {
   Language,
   searchLanguages,
@@ -13,18 +13,16 @@ interface LanguageSelectorProps {
   onChange: (value: string) => void;
   label: string;
   disabled?: boolean;
-  includeAuto?: boolean;
   placeholder?: string;
 }
 
-export default function LanguageSelector({
+export const LanguageSelector: FC<LanguageSelectorProps> = ({
   value,
   onChange,
   label,
   disabled = false,
-  includeAuto = false,
   placeholder = "Search language...",
-}: LanguageSelectorProps) {
+}: LanguageSelectorProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredLanguages, setFilteredLanguages] = useState<Language[]>([]);
@@ -34,22 +32,23 @@ export default function LanguageSelector({
   const selectedLanguage = getLanguageByCode(value);
 
   useEffect(() => {
-    const languages = searchLanguages(searchQuery, includeAuto);
+    const languages = searchLanguages(searchQuery);
 
-    if (!searchQuery.trim()) {
-      const popular = languages.filter(
-        (lang) =>
-          POPULAR_LANGUAGES.includes(lang.code) &&
-          (includeAuto || lang.code !== "auto"),
-      );
-      const others = languages.filter(
-        (lang) => !POPULAR_LANGUAGES.includes(lang.code),
-      );
-      setFilteredLanguages([...popular, ...others]);
-    } else {
+    if (searchQuery.trim()) {
       setFilteredLanguages(languages);
+      return;
     }
-  }, [searchQuery, includeAuto]);
+
+    const popular = languages.filter((lang) =>
+      POPULAR_LANGUAGES.includes(lang.code)
+    );
+
+    const others = languages.filter(
+      (lang) => !POPULAR_LANGUAGES.includes(lang.code)
+    );
+
+    setFilteredLanguages([...popular, ...others]);
+  }, [searchQuery]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -167,7 +166,7 @@ export default function LanguageSelector({
                     index > 0 &&
                     isPopular !==
                       POPULAR_LANGUAGES.includes(
-                        filteredLanguages[index - 1].code,
+                        filteredLanguages[index - 1].code
                       );
 
                   return (
@@ -227,4 +226,6 @@ export default function LanguageSelector({
       )}
     </div>
   );
-}
+};
+
+export default LanguageSelector;

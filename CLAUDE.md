@@ -31,7 +31,6 @@ npm run lint
 - **Data Fetching**: TanStack Query (React Query)
 - **STT**: Web Speech API + Whisper (via @xenova/transformers)
 - **Translation**: Google Gemini AI (with Mock for development)
-- **Language Detection**: franc library
 
 ### Path Aliases
 
@@ -107,8 +106,6 @@ Clean service architecture with factory pattern:
 Translation happens server-side via Next.js API route [src/app/api/translate/route.ts](src/app/api/translate/route.ts):
 
 - Uses Google Gemini AI for natural, context-aware translations
-- Auto-detects language using `franc` library
-- Auto-swaps source/target if detection conflicts with user selection (e.g., user selected Spanish→English but speaks English)
 - Supports context accumulation for better translation accuracy
 
 ### Overlay Modes

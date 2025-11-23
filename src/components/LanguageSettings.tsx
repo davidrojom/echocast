@@ -25,7 +25,6 @@ export function LanguageSettings() {
           onChange={onSourceChange}
           label="Source language (what you speak)"
           disabled={isListening}
-          includeAuto={true}
           placeholder="Search source language..."
         />
 
@@ -34,7 +33,6 @@ export function LanguageSettings() {
           onChange={onTargetChange}
           label="Target language (translation)"
           disabled={isListening}
-          includeAuto={false}
           placeholder="Search target language..."
         />
       </div>
