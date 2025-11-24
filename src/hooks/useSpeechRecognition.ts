@@ -96,7 +96,6 @@ export function useSpeechRecognition({
 
       recognitionRef.current.onend = () => {
         if (isNativeListening) {
-          // Small delay to prevent rapid restart loops if something is wrong
           setTimeout(() => {
             if (
               recognitionRef.current &&
@@ -114,7 +113,6 @@ export function useSpeechRecognition({
       };
 
       recognitionRef.current.onerror = (event: SpeechRecognitionErrorEvent) => {
-        // Ignore 'no-speech' errors as they just mean silence
         if (event.error === "no-speech") return;
 
         const err = new Error(`Speech recognition error: ${event.error}`);
@@ -131,11 +129,11 @@ export function useSpeechRecognition({
 
     return () => {
       if (recognitionRef.current) {
-        recognitionRef.current.onend = null; // Prevent restart on cleanup
+        recognitionRef.current.onend = null;
         recognitionRef.current.stop();
       }
     };
-  }, [mode, language]); // Removed onTranscript and onError from dependencies
+  }, [mode, language]);
 
   const startListening = useCallback(async () => {
     try {
@@ -149,19 +147,16 @@ export function useSpeechRecognition({
               : true,
         };
 
-        // Request microphone access first
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
         streamRef.current = stream;
 
         if (recognitionRef.current) {
-          // Ensure we're using the correct language
           recognitionRef.current.lang = language;
           try {
             recognitionRef.current.start();
             setIsNativeListening(true);
             setError(null);
           } catch (e) {
-            // If already started, just set state
             console.warn("Speech recognition already started", e);
             setIsNativeListening(true);
           }

@@ -44,6 +44,7 @@ export function useSubtitleQueue({
   const nextItemIdRef = useRef<number>(0);
   const lastTranscriptTimeRef = useRef<number>(0);
   const activeTranscriptItemIdRef = useRef<number | null>(null);
+  const lastInterimTranslationTimeRef = useRef<number>(0);
 
   const NEW_PHRASE_DELAY = 1000;
   const MS_PER_CHARACTER = 50;
@@ -141,7 +142,6 @@ export function useSubtitleQueue({
       queueRef.current.push(newItem);
       activeTranscriptItemIdRef.current = newItem.id;
 
-      // Always advance to the new item immediately for live feedback
       advanceQueue(queueRef.current.length - 1);
     },
     [advanceQueue]
@@ -243,16 +243,35 @@ export function useSubtitleQueue({
       lastTranscriptTimeRef.current = now;
 
       if (timeSinceLastText > NEW_PHRASE_DELAY) {
+        if (activeTranscriptItemIdRef.current !== null) {
+          handleFinalTranscript();
+        }
         createNewQueueItem(cleanText, now);
       } else {
-        updateExistingQueueItem(cleanText);
+        if (activeTranscriptItemIdRef.current === null) {
+          createNewQueueItem(cleanText, now);
+        } else {
+          updateExistingQueueItem(cleanText);
+
+          if (!isFinal && now - lastInterimTranslationTimeRef.current > 3000) {
+            lastInterimTranslationTimeRef.current = now;
+            if (activeTranscriptItemIdRef.current !== null) {
+              performTranslation(activeTranscriptItemIdRef.current);
+            }
+          }
+        }
       }
 
       if (isFinal) {
         handleFinalTranscript();
       }
     },
-    [createNewQueueItem, updateExistingQueueItem, handleFinalTranscript]
+    [
+      createNewQueueItem,
+      updateExistingQueueItem,
+      handleFinalTranscript,
+      performTranslation,
+    ]
   );
 
   const clearQueue = useCallback(() => {

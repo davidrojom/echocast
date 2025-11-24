@@ -33,9 +33,10 @@ export function useWhisper({
   const segmentStartRef = useRef<number>(Date.now());
   const SILENCE_THRESHOLD = 0.002;
   const SILENCE_DURATION = 500; // 500ms silence to cut segment
-  const MAX_SEGMENT_DURATION = 5000; // 5s max segment length
+  const MAX_SEGMENT_DURATION = 3000; // 3s max segment length
 
   const isProcessingRef = useRef<boolean>(false);
+  const processingStartRef = useRef<number | null>(null);
 
   useEffect(() => {
     onTranscriptRef.current = onTranscript;
@@ -82,7 +83,6 @@ export function useWhisper({
             if (data && typeof data.text === "string") {
               const text = data.text.trim();
               if (text) {
-                // Always mark as final because we are processing complete segments
                 onTranscriptRef.current(text, true);
               }
             } else if (Array.isArray(data)) {
@@ -147,7 +147,7 @@ export function useWhisper({
         const processor = audioContextRef.current.createScriptProcessor(
           4096,
           1,
-          1,
+          1
         );
         processorRef.current = processor;
 
@@ -175,11 +175,11 @@ export function useWhisper({
       } catch (err) {
         if (onErrorRef.current)
           onErrorRef.current(
-            err instanceof Error ? err : new Error(String(err)),
+            err instanceof Error ? err : new Error(String(err))
           );
       }
     },
-    [isModelReady],
+    [isModelReady]
   );
 
   const stopListening = useCallback(() => {
@@ -201,7 +201,6 @@ export function useWhisper({
     isProcessingRef.current = false;
   }, []);
 
-  // Periodic processing loop - SEGMENTED STRATEGY
   useEffect(() => {
     let interval: NodeJS.Timeout;
 
@@ -214,22 +213,26 @@ export function useWhisper({
             ? now - silenceStartRef.current
             : 0;
 
-          // Trigger processing if:
-          // 1. Silence > 500ms (Natural pause)
-          // 2. Duration > 5000ms (Max segment length)
-
           const shouldProcess =
             silenceDuration > SILENCE_DURATION ||
             segmentDuration > MAX_SEGMENT_DURATION;
 
+          if (
+            isProcessingRef.current &&
+            processingStartRef.current &&
+            now - processingStartRef.current > 10000
+          ) {
+            console.warn("Whisper worker stuck, forcing reset...");
+            isProcessingRef.current = false;
+            processingStartRef.current = null;
+          }
+
           if (shouldProcess && !isProcessingRef.current) {
-            // Calculate total length
             const totalLength = audioDataRef.current.reduce(
               (acc, chunk) => acc + chunk.length,
-              0,
+              0
             );
 
-            // Only process if meaningful audio (> 0.2s)
             if (totalLength > 16000 * 0.2) {
               const mergedAudio = new Float32Array(totalLength);
               let offset = 0;
@@ -239,6 +242,7 @@ export function useWhisper({
               }
 
               isProcessingRef.current = true;
+              processingStartRef.current = Date.now();
               if (workerRef.current) {
                 workerRef.current.postMessage({
                   type: "generate",
@@ -250,14 +254,12 @@ export function useWhisper({
               }
             }
 
-            // ALWAYS clear buffer and reset segment after processing trigger
-            // This ensures we start a fresh segment for the next phrase
             audioDataRef.current = [];
             silenceStartRef.current = null;
             segmentStartRef.current = Date.now();
           }
         }
-      }, 100); // Check frequently (100ms) for precise cuts
+      }, 100);
     }
 
     return () => clearInterval(interval);

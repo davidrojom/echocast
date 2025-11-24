@@ -73,8 +73,6 @@ class WhisperWorker {
       const output = await this.transcriber(audio, {
         language: language,
         task: 'transcribe',
-        // chunk_length_s: 30, // Removed to allow growing buffer
-        // stride_length_s: 5, // Removed to prevent splitting
         repetition_penalty: 1.2,
         no_repeat_ngram_size: 3,
       });

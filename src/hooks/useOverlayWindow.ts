@@ -30,11 +30,14 @@ export function useOverlayWindow({
   const [isOpen, setIsOpen] = useState(false);
   const [overlayType, setOverlayType] = useState<"pip" | "popup" | null>(null);
   const overlayWindowRef = useRef<OverlayWindow | null>(null);
-  const canvasUpdateRef = useRef<
-    ((original: string, translated: string) => void) | null
-  >(null);
-  const currentTranscriptRef = useRef<string>("");
-  const currentTranslationRef = useRef<string>("");
+  const canvasUpdateRef = useRef<(() => void) | null>(null);
+
+  const displayQueueRef = useRef<string[]>([]);
+  const pendingBufferRef = useRef<string>("");
+  const lastInputRef = useRef<string>("");
+  const currentSlideRef = useRef<string>("");
+  const slideExpiryRef = useRef<number>(0);
+  const enqueuedTextLengthRef = useRef<number>(0);
 
   const createPictureInPictureOverlay = useCallback(async () => {
     try {
@@ -47,51 +50,47 @@ export function useOverlayWindow({
         throw new Error("Could not get canvas context");
       }
 
-      const drawText = (originalText: string, translatedText: string) => {
+      const drawText = (text: string) => {
         if (!ctx) return;
 
         ctx.fillStyle = "rgba(0, 0, 0, 0.95)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         ctx.fillStyle = "#ffffff";
-        ctx.font = "bold 32px -apple-system, BlinkMacSystemFont, sans-serif";
+        ctx.font = "bold 24px -apple-system, BlinkMacSystemFont, sans-serif";
         ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
 
-        const translatedWords = (
-          translatedText || "Waiting for audio..."
-        ).split(" ");
-        let translatedLine = "";
-        let translatedY = canvas.height / 2 - 20;
-        const translatedLineHeight = 40;
-        const maxTranslatedLines = 3;
-        let translatedLineCount = 0;
-        const maxWidth = canvas.width - 40;
+        const words = (text || "").split(" ");
+        let line = "";
+        const lines: string[] = [];
+        const maxWidth = canvas.width - 60;
 
-        for (
-          let n = 0;
-          n < translatedWords.length &&
-          translatedLineCount < maxTranslatedLines;
-          n++
-        ) {
-          const testLine = translatedLine + translatedWords[n] + " ";
+        for (let n = 0; n < words.length; n++) {
+          const testLine = line + words[n] + " ";
           const metrics = ctx.measureText(testLine);
           const testWidth = metrics.width;
           if (testWidth > maxWidth && n > 0) {
-            ctx.fillText(translatedLine, canvas.width / 2, translatedY);
-            translatedLine = translatedWords[n] + " ";
-            translatedY += translatedLineHeight;
-            translatedLineCount++;
+            lines.push(line);
+            line = words[n] + " ";
           } else {
-            translatedLine = testLine;
+            line = testLine;
           }
         }
-        if (translatedLineCount < maxTranslatedLines && translatedLine.trim()) {
-          ctx.fillText(translatedLine, canvas.width / 2, translatedY);
+        lines.push(line);
+
+        const lineHeight = 32;
+        const totalHeight = lines.length * lineHeight;
+        const startY = (canvas.height - totalHeight) / 2 + lineHeight / 2;
+
+        for (let i = 0; i < lines.length; i++) {
+          ctx.fillText(lines[i], canvas.width / 2, startY + i * lineHeight);
         }
 
         ctx.fillStyle = "#ffffff";
         ctx.font = "bold 16px -apple-system, BlinkMacSystemFont, sans-serif";
         ctx.textAlign = "left";
+        ctx.textBaseline = "alphabetic";
 
         ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
         ctx.fillRect(15, 15, 80, 30);
@@ -104,7 +103,7 @@ export function useOverlayWindow({
         ctx.fillText(targetLanguageFlag, 55, 35);
       };
 
-      drawText("", "");
+      drawText("Waiting for audio...");
 
       const video = document.createElement("video");
       video.style.position = "fixed";
@@ -132,7 +131,30 @@ export function useOverlayWindow({
 
       await video.requestPictureInPicture();
 
-      canvasUpdateRef.current = drawText;
+      canvasUpdateRef.current = () => {
+        const now = Date.now();
+
+        if (now >= slideExpiryRef.current) {
+          if (displayQueueRef.current.length > 0) {
+            const nextChunk = displayQueueRef.current.shift() || "";
+            currentSlideRef.current = nextChunk;
+
+            const wordCount = nextChunk.split(" ").length;
+            const duration = 1500 + wordCount * 150;
+            slideExpiryRef.current = now + duration;
+          } else {
+            currentSlideRef.current =
+              pendingBufferRef.current ||
+              (currentSlideRef.current
+                ? currentSlideRef.current
+                : "Waiting for audio...");
+
+            slideExpiryRef.current = now;
+          }
+        }
+
+        drawText(currentSlideRef.current);
+      };
 
       overlayWindowRef.current = {
         close: async () => {
@@ -147,9 +169,6 @@ export function useOverlayWindow({
           canvasUpdateRef.current = null;
         },
         closed: false,
-        updateText: (original: string, translated: string) => {
-          drawText(original, translated);
-        },
       };
 
       const updateInterval = setInterval(() => {
@@ -158,11 +177,13 @@ export function useOverlayWindow({
           !overlayWindowRef.current.closed &&
           canvasUpdateRef.current
         ) {
-          canvasUpdateRef.current(
-            currentTranscriptRef.current,
-            currentTranslationRef.current,
-          );
+          canvasUpdateRef.current();
         } else {
+          console.log("PiP Loop stopping", {
+            ref: !!overlayWindowRef.current,
+            closed: overlayWindowRef.current?.closed,
+            updateFn: !!canvasUpdateRef.current,
+          });
           clearInterval(updateInterval);
         }
       }, 100);
@@ -174,6 +195,14 @@ export function useOverlayWindow({
         setOverlayType(null);
         overlayWindowRef.current = null;
         canvasUpdateRef.current = null;
+
+        displayQueueRef.current = [];
+        pendingBufferRef.current = "";
+        lastInputRef.current = "";
+        currentSlideRef.current = "";
+        slideExpiryRef.current = 0;
+        enqueuedTextLengthRef.current = 0;
+
         if (video.parentNode) {
           document.body.removeChild(video);
         }
@@ -192,7 +221,7 @@ export function useOverlayWindow({
     const overlayWindow = window.open(
       "",
       "echocast-overlay",
-      `width=${w},height=${h},left=${x},top=${y},resizable=yes,scrollbars=no`,
+      `width=${w},height=${h},left=${x},top=${y},resizable=yes,scrollbars=no`
     );
 
     if (!overlayWindow) {
@@ -213,7 +242,7 @@ export function useOverlayWindow({
       console.error("Error loading overlay template:", error);
 
       overlayWindow.document.write(
-        "<html><body><h1>Error loading template</h1></body></html>",
+        "<html><body><h1>Error loading template</h1></body></html>"
       );
       overlayWindow.document.close();
     }
@@ -269,13 +298,55 @@ export function useOverlayWindow({
 
   const updateSubtitles = useCallback(
     (subtitle: string, translation: string) => {
-      currentTranscriptRef.current = subtitle;
-      currentTranslationRef.current = translation;
+      if (overlayType === "pip") {
+        const lastInput = lastInputRef.current;
+
+        if (translation.startsWith(lastInput) && lastInput) {
+          const alreadyEnqueuedLength = enqueuedTextLengthRef.current;
+          const newText = translation.slice(alreadyEnqueuedLength);
+
+          if (newText) {
+            pendingBufferRef.current += newText;
+            lastInputRef.current = translation;
+
+            enqueuedTextLengthRef.current = translation.length;
+
+            let words = pendingBufferRef.current.trim().split(/\s+/);
+            while (words.length > 20) {
+              const chunk = words.slice(0, 20).join(" ");
+              const remainder = words.slice(20).join(" ");
+
+              displayQueueRef.current.push(chunk);
+
+              pendingBufferRef.current = remainder + (remainder ? " " : "");
+              words = pendingBufferRef.current.trim().split(/\s+/);
+            }
+          }
+        } else {
+          displayQueueRef.current = [];
+          pendingBufferRef.current = translation;
+          lastInputRef.current = translation;
+
+          enqueuedTextLengthRef.current = translation.length;
+
+          let words = pendingBufferRef.current.trim().split(/\s+/);
+          while (words.length > 20) {
+            const chunk = words.slice(0, 20).join(" ");
+            const remainder = words.slice(20).join(" ");
+
+            displayQueueRef.current.push(chunk);
+
+            pendingBufferRef.current = remainder + (remainder ? " " : "");
+            words = pendingBufferRef.current.trim().split(/\s+/);
+          }
+        }
+      }
 
       if (
         isOpen &&
         overlayWindowRef.current &&
-        !overlayWindowRef.current.closed
+        !overlayWindowRef.current.closed &&
+        overlayType !== "pip"
       ) {
         try {
           if (
@@ -306,7 +377,7 @@ export function useOverlayWindow({
         }
       }
     },
-    [isOpen, targetLanguage, getLanguageFlag, onReset],
+    [isOpen, overlayType, targetLanguage, getLanguageFlag, onReset]
   );
 
   useEffect(() => {
