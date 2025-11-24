@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Mic } from "lucide-react";
-import { useTranslation } from "../hooks/useTranslation";
+import { TranslationOptions, useTranslation } from "../hooks/useTranslation";
 import { useClientOnly } from "../hooks/useClientOnly";
 import { useSpeechRecognition } from "../hooks/useSpeechRecognition";
 import { useAudioDevices } from "../hooks/useAudioDevices";
@@ -27,11 +27,12 @@ export default function Home() {
     translationProvider,
   } = useAppStore();
 
-  const { translateText: originalTranslateText, isTranslating } = useTranslation();
+  const { translateText: originalTranslateText, isTranslating } =
+    useTranslation();
   const translateText = useCallback(
-    (text: string, options: any, context?: string) =>
+    (text: string, options: TranslationOptions, context?: string) =>
       originalTranslateText({ text, options, context }),
-    [originalTranslateText],
+    [originalTranslateText]
   );
   const isClient = useClientOnly();
   const [sttMode, setSttMode] = useState<"native" | "whisper">("native");
@@ -53,7 +54,7 @@ export default function Home() {
         overlayWindowRef.current.updateSubtitles(subtitle, translation);
       }
     },
-    [],
+    []
   );
 
   const subtitleQueue = useSubtitleQueue({
@@ -107,7 +108,7 @@ export default function Home() {
       } catch (error) {
         console.error("Error starting listening:", error);
         alert(
-          "Could not access selected microphone. Please allow access or select another device.",
+          "Could not access selected microphone. Please allow access or select another device."
         );
       }
     } else {
